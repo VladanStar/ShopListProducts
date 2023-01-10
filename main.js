@@ -23,9 +23,12 @@ fetch(link)
             if (username == customer.CustomerID
                 && password == customer.CustomerID) {
                 console.log("uspesno ste se ulogovali");
-              main.show();
-                login.hide();
+            //   main.show();
+            //     login.hide();
+                $("#main").show();
+                $("#login").hide();
                 uzmiPorudzbine();
+                // uzmiPorudzbine();
             }
         }
     });
@@ -39,4 +42,37 @@ fetch(link)
     });
     
     }
+    function uzmiProizvode(porudzbine) {
+
+        fetch(productsLink)
+        .then((response) => response.json())
+        .then((data) => function (res) {
+            let products = res.value;
+            for (const key in porudzbine) {
+
+                const order = porudzbine[key];
+                for (const key2 in products) {
+                    const product = products[key2];
+                    if (product.ProductID == order.ProductID) {
+                        console.log(product.ProductID);
+                        iscrtajProzvod(product, order);
+                    }
+                }
+
+            }
+            console.log(products);
+        });
+   
+       
+    }
+
+    function iscrtajProzvod(proizvod, porudzbina) {
+        $("<div>", {
+            text: porudzbina.OrderID + " - "
+            + proizvod.ProductName,
+            id: proizvod.ProductID
+        }).appendTo("#main");
+
+    }
+
 })

@@ -45,7 +45,7 @@ $(document).ready(function () {
         console.log(result);
         let pordzbine = result.value;
         uzmiProizvode(pordzbine);
-        iscrtajProzvod(pordzbine);
+        // iscrtajProzvod(pordzbine);
       },
       error: function (error) {},
     });
@@ -83,14 +83,16 @@ $(document).ready(function () {
       type: "GET",
       success: function (res) {
         let products = res.value;
-        for (const key2 in products) {
-          const product = products[key2];
-          if (product.ProductID !== order.ProductID) {
-            console.log(product.ProductID);
-            iscrtajProzvod(product, order);
+        for (const key in proizvodi) {
+          const order = proizvodi[key];
+          for (const key2 in products) {
+            const product = products[key2];
+            if (product.ProductID !== order.ProductID) {
+              console.log(product.ProductID);
+              iscrtajProzvod(product, order);
+            }
           }
         }
-
         console.log(products);
       },
       error: function (error) {

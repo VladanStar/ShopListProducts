@@ -1,78 +1,112 @@
 $(document).ready(function () {
-   let mainL = document.getElementById("mainL");
-mainL.style.display = "none";
-let main = document.getElementById("main");
-let login = document.getElementById("login")
+  $("#main").hide();
+  $("#mainL").hide();
+  let link = "https://services.odata.org/V3/Northwind/Northwind.svc/Customers";
+  let orderLink =
+    "https://services.odata.org/V3/Northwind/Northwind.svc/Order_Details";
+  let productsLink =
+    "https://services.odata.org/V3/Northwind/Northwind.svc/Products";
+  let customers;
+  $.ajax({
+    url: link,
+    dataType: "json",
+    type: "GET",
+    success: function (result) {
+      console.log(result);
+      customers = result.value;
+    },
+    error: function (error) {
+      console.error(error);
+    },
+  });
 
-let link = "https://services.odata.org/V3/Northwind/Northwind.svc/Customers";
-let orderLink = "https://services.odata.org/V3/Northwind/Northwind.svc/Order_Details";
-let productsLink = "https://services.odata.org/V3/Northwind/Northwind.svc/Products";
-let customers;
-fetch(link)
-    .then((response) => response.json())
-    .then((data) => function (result) {
-        console.log(result);
-        customers = result.value;
-    });
+  $("#loginBtn").click(function () {
+    let username = $("#username").val();
+    let password = $("#password").val();
+    for (const key in customers) {
+      const customer = customers[key];
+      if (username == customer.CustomerID && password == customer.CustomerID) {
+        console.log("uspesno ste se ulogovali");
+        $("#main").show();
+        $("#mainL").show();
+        $("#login").hide();
+        uzmiPorudzbine();
+        uzmiSveProizvode();
+      }
+    }
+  });
 
-    $("#loginBtn").click(function () {
-        let username = document.getElementById("username").value
-        let password = document.getElementById("password").value
-        for (const key in customers) {
-            const customer = customers[key];
-            if (username == customer.CustomerID
-                && password == customer.CustomerID) {
-                console.log("uspesno ste se ulogovali");
-            //   main.show();
-            //     login.hide();
-                $("#main").show();
-                $("#login").hide();
-                uzmiPorudzbine();
-                // uzmiPorudzbine();
-            }
-        }
-    });
-    function uzmiPorudzbine() {
-        fetch(orderLink)
-    .then((response) => response.json())
-    .then((data) => function (result) {
+  function uzmiPorudzbine() {
+    $.ajax({
+      url: orderLink,
+      dataType: "json",
+      type: "GET",
+      success: function (result) {
         console.log(result);
         let pordzbine = result.value;
         uzmiProizvode(pordzbine);
+        iscrtajProzvode(pordzbine);
+      },
+      error: function (error) {},
     });
-    
-    }
-    function uzmiProizvode(porudzbine) {
+  }
 
-        fetch(productsLink)
-        .then((response) => response.json())
-        .then((data) => function (res) {
-            let products = res.value;
-            for (const key in porudzbine) {
-
-                const order = porudzbine[key];
-                for (const key2 in products) {
-                    const product = products[key2];
-                    if (product.ProductID == order.ProductID) {
-                        console.log(product.ProductID);
-                        iscrtajProzvod(product, order);
-                    }
-                }
-
+  function uzmiProizvode(porudzbine) {
+    $.ajax({
+      url: productsLink,
+      dataType: "json",
+      type: "GET",
+      success: function (res) {
+        let products = res.value;
+        for (const key in porudzbine) {
+          const order = porudzbine[key];
+          for (const key2 in products) {
+            const product = products[key2];
+            if (product.ProductID == order.ProductID) {
+              console.log(product.ProductID);
+              iscrtajProzvod(product, order);
             }
-            console.log(products);
-        });
-   
-       
-    }
+          }
+        }
+        console.log(products);
+      },
+      error: function (error) {
+        console.error(error);
+      },
+    });
+  }
 
-    function iscrtajProzvod(proizvod, porudzbina) {
-        $("<div>", {
-            text: porudzbina.OrderID + " - "
-            + proizvod.ProductName,
-            id: proizvod.ProductID
-        }).appendTo("#main");
+  function uzmiSveProizvode(proizvodi) {
+    $.ajax({
+      url: productsLink,
+      dataType: "json",
+      type: "GET",
+      success: function (res) {
+        let products = res.value;
+        for (const key in proizvodi) {
+          const product = products[key];
+          const order = proizvodi[key];
+          console.log(product.ProductID);
+          iscrtajProzvode(product);
+        }
 
-    }
-
-})
+        console.log(products);
+      },
+      error: function (error) {
+        console.error(error);
+      },
+    });
+  }
+  function iscrtajProzvod(proizvod, porudzbina) {
+    $("<div>", {
+      text: porudzbina.OrderID + " - " + proizvod.ProductName,
+      id: proizvod.ProductID,
+    }).appendTo("#main");
+  }
+  function iscrtajProzvode(proizvod, order) {
+    $("<div>", {
+      text:" - " + proizvod.ProductName,
+      id: proizvod.ProductID,
+    }).appendTo("#mainL");
+  }
+});

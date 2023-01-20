@@ -1,7 +1,8 @@
 $(document).ready(function () {
   $("#main").hide();
-  $("#mainL").hide();
-  let link = "https://services.odata.org/V3/Northwind/Northwind.svc/Customers";
+  $("#products").hide();
+  let link =
+    "https://services.odata.org/V3/Northwind/Northwind.svc/Customers";
   let orderLink =
     "https://services.odata.org/V3/Northwind/Northwind.svc/Order_Details";
   let productsLink =
@@ -25,15 +26,49 @@ $(document).ready(function () {
     let password = $("#password").val();
     for (const key in customers) {
       const customer = customers[key];
-      if (username == customer.CustomerID && password == customer.CustomerID) {
+      if (
+        username == customer.CustomerID &&
+        password == customer.CustomerID
+      ) {
         console.log("uspesno ste se ulogovali");
         $("#main").show();
-        $("#mainL").show();
+        $("#products").show();
         $("#login").hide();
         uzmiPorudzbine();
-        uzmiSveProizvode();
       }
     }
+  });
+
+  $("#products").click(function () {
+    $.ajax({
+      url: orderLink,
+      dataType: "json",
+      type: "GET",
+      success: function (result) {
+        console.log(result);
+        let pordzbine = result.value;
+        uzmiSveProizvode(pordzbine);
+      },
+      error: function (error) {},
+    });
+  });
+  $("#orders").click(function () {
+    $.ajax({
+      url: orderLink,
+      dataType: "json",
+      type: "GET",
+      success: function (result) {
+        console.log(result);
+        let pordzbine = result.value;
+        uzmiSveProizvode(pordzbine);
+        $("#main").show();
+        $("#products").hide();
+        $("#login").hide();
+        $("#orders").show();
+
+      },
+      error: function (error) {},
+    });
   });
 
   function uzmiPorudzbine() {
@@ -45,7 +80,6 @@ $(document).ready(function () {
         console.log(result);
         let pordzbine = result.value;
         uzmiProizvode(pordzbine);
-        // iscrtajProzvod(pordzbine);
       },
       error: function (error) {},
     });
@@ -63,6 +97,7 @@ $(document).ready(function () {
           for (const key2 in products) {
             const product = products[key2];
             if (product.ProductID == order.ProductID) {
+              // za sve proizvode treba staviti !
               console.log(product.ProductID);
               iscrtajProzvod(product, order);
             }
@@ -75,23 +110,22 @@ $(document).ready(function () {
       },
     });
   }
-
-
-  function uzmiSveProizvode(proizvodi) {
+  function uzmiSveProizvode(porudzbine) {
     $.ajax({
       url: productsLink,
       dataType: "json",
       type: "GET",
       success: function (res) {
         let products = res.value;
-        for (const key in proizvodi) {
-          const order = proizvodi[key];
+        for (const key in porudzbine) {
+          const order = porudzbine[key];
           for (const key2 in products) {
             const product = products[key2];
-            if (product.ProductID !== order.ProductID) {
-              console.log(product.ProductID);
-              iscrtajProzvod(product, order);
-            }
+            //   if (product.ProductID !== order.ProductID) {
+            // za sve proizvode treba staviti !
+            console.log(product.ProductID);
+            iscrtajProzvod(product, order);
+            //   }
           }
         }
         console.log(products);
@@ -101,11 +135,11 @@ $(document).ready(function () {
       },
     });
   }
-  function iscrtajProzvod(proizvod, porudzbina) {
+
+  function iscrtajProzvod(proizvod, porudzbine) {
     $("<div>", {
-      text: porudzbina.OrderID + " - " + proizvod.ProductName,
+      text: porudzbine.OrderID + " - " + proizvod.ProductName,
       id: proizvod.ProductID,
     }).appendTo("#main");
   }
-  
 });

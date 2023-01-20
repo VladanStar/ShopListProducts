@@ -76,6 +76,7 @@ $(document).ready(function () {
     });
   }
 
+
   function uzmiSveProizvode(proizvodi) {
     $.ajax({
       url: productsLink,

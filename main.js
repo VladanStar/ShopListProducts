@@ -34,112 +34,55 @@ $(document).ready(function () {
         $("#main").show();
         $("#products").show();
         $("#login").hide();
-        uzmiPorudzbine();
+    
       }
     }
   });
 
   $("#products").click(function () {
-    $.ajax({
-      url: orderLink,
-      dataType: "json",
-      type: "GET",
-      success: function (result) {
-        console.log(result);
-        let pordzbine = result.value;
-        uzmiSveProizvode(pordzbine);
-      },
-      error: function (error) {},
+ 
+    fetch("https://services.odata.org/v4/Northwind/Northwind.svc/Products/")
+    .then((data) => data.json())
+    .then(function (data) {
+      // data = JSON.parse(data);
+      console.log(data.value);
+      let html = "";
+      data.value.map((product) => {
+        html += `
+                <div class="col-3 product-container">
+                    <div class="card product">
+                        <div class="card-body">
+                        <img
+                        src="${"https://www.slikomania.rs/fotky6509/fotos/CWFFL036.jpg"}"
+                       class="card-img-top"
+                       alt="${product.ProductName}"
+                       />
+                       <h5c lass="card-title">${product.ProductName}</h5>
+                            <p class="card-title"> id: ${product.ProductID}</p >
+                            <p class="card-text"> quantity:${
+                              product.QuantityPerUnit
+                            } </p>
+                            <p class="card-text"> id category: ${
+                              product.CategoryID
+                            } </p>
+                            <button type="button" class="btn btn-primary btn-cart" onClick="addProductCart(${
+                              product.ProductID
+                            })">Add to Cart</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        console.log(product.ProductID);
+  
+        document.getElementsByClassName("products")[0].innerHTML = html;
+      });
     });
-  });
-  $("#orders").click(function () {
-    $.ajax({
-      url: orderLink,
-      dataType: "json",
-      type: "GET",
-      success: function (result) {
-        console.log(result);
-        let pordzbine = result.value;
-        uzmiSveProizvode(pordzbine);
-        $("#main").show();
-        $("#products").hide();
-        $("#login").hide();
-        $("#orders").show();
 
-      },
-      error: function (error) {},
-    });
-  });
 
-  function uzmiPorudzbine() {
-    $.ajax({
-      url: orderLink,
-      dataType: "json",
-      type: "GET",
-      success: function (result) {
-        console.log(result);
-        let pordzbine = result.value;
-        uzmiProizvode(pordzbine);
-      },
-      error: function (error) {},
-    });
-  }
+ 
 
-  function uzmiProizvode(porudzbine) {
-    $.ajax({
-      url: productsLink,
-      dataType: "json",
-      type: "GET",
-      success: function (res) {
-        let products = res.value;
-        for (const key in porudzbine) {
-          const order = porudzbine[key];
-          for (const key2 in products) {
-            const product = products[key2];
-            if (product.ProductID == order.ProductID) {
-              // za sve proizvode treba staviti !
-              console.log(product.ProductID);
-              iscrtajProzvod(product, order);
-            }
-          }
-        }
-        console.log(products);
-      },
-      error: function (error) {
-        console.error(error);
-      },
-    });
-  }
-  function uzmiSveProizvode(porudzbine) {
-    $.ajax({
-      url: productsLink,
-      dataType: "json",
-      type: "GET",
-      success: function (res) {
-        let products = res.value;
-        for (const key in porudzbine) {
-          const order = porudzbine[key];
-          for (const key2 in products) {
-            const product = products[key2];
-            //   if (product.ProductID !== order.ProductID) {
-            // za sve proizvode treba staviti !
-            console.log(product.ProductID);
-            iscrtajProzvod(product, order);
-            //   }
-          }
-        }
-        console.log(products);
-      },
-      error: function (error) {
-        console.error(error);
-      },
-    });
-  }
+})
 
-  function iscrtajProzvod(proizvod, porudzbine) {
-    $("<div>", {
-      text: porudzbine.OrderID + " - " + proizvod.ProductName,
-      id: proizvod.ProductID,
-    }).appendTo("#main");
-  }
-});
+
+
+})
